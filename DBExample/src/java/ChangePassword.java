@@ -48,8 +48,32 @@ public class ChangePassword extends HttpServlet {
         String oldpassword = request.getParameter("oldpassword");
         String newpassword = request.getParameter("newpassword");
         String cpassword = request.getParameter("cpassword");
+        String name = "";
+        String password = "";
+        String usernameusr = "";
+        
+        
+            
         
         try{
+            /*//declare driver and connection string
+            String driver = "org.apache.derby.jdbc.ClientDriver";
+            String connectionString = "jdbc:derby://localhost:1527/ChangePasswordDB;create=true;user=app;password=app";
+            
+            //load the driver
+            Class.forName(driver);
+            
+            //connect to the sampple db
+            Connection conn = DriverManager.getConnection(connectionString);
+            
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("select * from Account where password = 'oldpassword'");
+             while (rs.next()) {
+                usernameusr = rs.getString(1);
+                password = rs.getString(2);
+                name = rs.getString(3);
+            }
+             */
             //error message occur if username and old password is not valid
             if(username.length() == 0 || oldpassword.length() == 0){
                 out.println("Username and Old Password are <font color=\"#FF0000\">required</font>");
@@ -64,12 +88,7 @@ public class ChangePassword extends HttpServlet {
                 return; //End of method
             }            
             
-            String currentUsername = getCurrentUsername (username);
-            if (currentUsername == null || !currentUsername.equals(username)) {
-                out.println("<p>The username does not match the current one.</p>");
-                out.println("<a href='ChangePassword.html'><input type='button' value='Back'></a>");
-                return;
-            }
+            
             
             
             
@@ -83,6 +102,7 @@ public class ChangePassword extends HttpServlet {
         
             storePassword(username, cpassword); 
             out.println("Hello, " + username + ", your password has been updated..");
+            
         } catch (Exception ex){
             out.println("Error: " + ex.getMessage());
         } finally {
@@ -106,6 +126,7 @@ public class ChangePassword extends HttpServlet {
             //connect to the sampple db
             Connection conn = DriverManager.getConnection(connectionString);
             
+            
             //create a statement
             updateStatement = conn.prepareStatement("Update Account"
                     + " Set password = ?"
@@ -113,11 +134,11 @@ public class ChangePassword extends HttpServlet {
             
             getStatement = conn.prepareStatement("Select password"
                     + " From Account"
-                    + " Where username = ?");
+                    + " Where username = ?" );
             
-            getStatement = conn.prepareStatement("Select username"
-                    + " From Account"
-                    + " Where username = ?");
+            
+            
+          
             
             
         } catch (Exception ex) {
@@ -132,7 +153,6 @@ public class ChangePassword extends HttpServlet {
     //private void storePassword(String username, String cpassword) throws SQLException {
         updateStatement.setString(1,cpassword);
         updateStatement.setString(2,username);
-
         updateStatement.executeUpdate();
     }
     
@@ -148,15 +168,5 @@ public class ChangePassword extends HttpServlet {
         return null;
     }
     
-    private String getCurrentUsername(String username) throws SQLException {
-        
-        getStatement.setString(1, username);
-        ResultSet rs = getStatement.executeQuery();
-        
-        if (rs.next()) {
-            return rs.getString(1);
-        }
-        
-        return null;
-    }
+  
 }
