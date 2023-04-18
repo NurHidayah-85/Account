@@ -20,18 +20,13 @@ import java.sql.*;
 public class ChangePassword extends HttpServlet {
     
     //Use a prepared statement to store a student into the database
-    private PreparedStatement pstmt;
-    private Statement stmt;
+    private PreparedStatement updateStatement, getStatement;
     
     
     
     public void init() throws ServletException {
         initializeJdbc();
-        
     }
-
-   
-    
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -48,76 +43,13 @@ public class ChangePassword extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         //Obtain parameters from the client
-        String name = request.getParameter("name");
+        //String name = request.getParameter("name");
         String username = request.getParameter("username");
         String oldpassword = request.getParameter("oldpassword");
         String newpassword = request.getParameter("newpassword");
         String cpassword = request.getParameter("cpassword");
         
-        
-
-        
         try{
-            
-            
-            
-             ResultSet rs = stmt.executeQuery("select username, password from Account");  
-             
-             //out.println("<table border=1 width=50% height=50%>");  
-             //out.println("<tr><th>Username</th><th>Password</th><th>Name</th><tr>");  
-             while (rs.next()) 
-             {  
-                 String user = rs.getString("username");  
-                 String pass = rs.getString("password");
-                 String uname = rs.getString("name");
-                 
-                 if (user != username) {
-                    if ( pass != oldpassword) {
-                        System.out.println("data is not in system!");
-                    }
-                    else{
-                        System.out.println("Recorded!");
-                        
-                    }
-}
-
-                 //out.println("<tr><td>" + user + "</td><td>" + pass + "</td><td>" + nm + "</td></tr>");   
-             }  
-            
-             /*ResultSet rs = pstmt.executeQuery("select username,password from Account");  
-             //out.println("<table border=1 width=50% height=50%>");  
-             //out.println("<tr><th>Username</th><th>Password</th><th>Name</th><tr>");  
-             while (rs.next()) 
-             {  
-                                
-                  username = rs.getString("username");  
-                  oldpassword = rs.getString("password");  
-                   name = rs.getString("name");
-             
- 
-                if (username != rs.getString("username")&& oldpassword != rs.getString("password")) {
-                        System.out.println("data bot recorded!");
-                    }*/
-                 
-                 /*username = rs.getString("username");  
-                  oldpassword = rs.getString("password");  
-                 name = rs.getString("name");  */
-
-                 //out.println("<tr><td>" + user + "</td><td>" + pass + "</td><td>" + nm + "</td></tr>");   
-             
-//error message occur if username and existing password is not in Account table
-            //error message occur if not match
-            /*if(!username.equals(username) && oldpassword.equals(password) ){
-                out.println("New password and confirm password are <font color=\"#FF0000\">not match</font>");
-                out.println("<a href=ChangePassword.html>Back</a>");//back to previous page
-                return; //End of method
-            }*/
-            
-          if(!username.equals(username)|| !oldpassword.equals(oldpassword))
-            {
-                out.println("No data registered");
-            }
-
             //error message occur if username and old password is not valid
             if(username.length() == 0 || oldpassword.length() == 0){
                 out.println("Username and Old Password are <font color=\"#FF0000\">required</font>");
@@ -130,11 +62,17 @@ public class ChangePassword extends HttpServlet {
                 out.println("New password and confirm password are <font color=\"#FF0000\">not match</font>");
                 out.println("<a href=ChangePassword.html>Back</a>");//back to previous page
                 return; //End of method
-            }
+            }            
             
+            String currentPassword = getCurrentPassword(username);
+            if (currentPassword == null || !currentPassword.equals(oldpassword)) {
+                out.println("<p>The old password does not match the current one.</p>");
+                out.println("<a href='ChangePassword.html'><input type='button' value='Back'></a>");
+                return;
+            }
         
-        storePassword(username, cpassword, name); 
-        out.println("Hello, " + rs.getString("name") + ", your password has been updated..");
+            storePassword(username, cpassword); 
+            out.println("Hello, " + username + ", your password has been updated..");
         } catch (Exception ex){
             out.println("Error: " + ex.getMessage());
         } finally {
@@ -152,8 +90,6 @@ public class ChangePassword extends HttpServlet {
             String driver = "org.apache.derby.jdbc.ClientDriver";
             String connectionString = "jdbc:derby://localhost:1527/ChangePasswordDB;create=true;user=app;password=app";
             
-           
-            
             //load the driver
             Class.forName(driver);
             
@@ -161,31 +97,38 @@ public class ChangePassword extends HttpServlet {
             Connection conn = DriverManager.getConnection(connectionString);
             
             //create a statement
-           
-             pstmt = conn.prepareStatement("UPDATE Account SET  password = ? WHERE username = ?");
-             stmt = conn.createStatement();  
+            updateStatement = conn.prepareStatement("Update Account"
+                    + " Set password = ?"
+                    + " Where username = ?");
             
-             
+            getStatement = conn.prepareStatement("Select password"
+                    + " From Account"
+                    + " Where username = ?");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
-    
  
+    /**
+     * Store new record password to the db
+     */
+    private void storePassword(String username, String cpassword) throws SQLException {
+    //private void storePassword(String username, String cpassword) throws SQLException {
+        updateStatement.setString(1,cpassword);
+        updateStatement.setString(2,username);
+
+        updateStatement.executeUpdate();
+    }
     
- 
-/**
- * Store new record password to the db
- */
-private void storePassword(String username, String cpassword, String name) throws SQLException {
-//private void storePassword(String username, String cpassword) throws SQLException {
-pstmt.setString(1,username );
-pstmt.setString(2,cpassword );
-pstmt.setString(3, name);
-
-pstmt.executeUpdate();
-}
-
-
+    private String getCurrentPassword(String username) throws SQLException {
+        
+        getStatement.setString(1, username);
+        ResultSet rs = getStatement.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getString(1);
+        }
+        
+        return null;
+    }
 }
