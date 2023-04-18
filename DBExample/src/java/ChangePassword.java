@@ -64,6 +64,16 @@ public class ChangePassword extends HttpServlet {
                 return; //End of method
             }            
             
+            String currentUsername = getCurrentUsername (username);
+            if (currentUsername == null || !currentUsername.equals(username)) {
+                out.println("<p>The username does not match the current one.</p>");
+                out.println("<a href='ChangePassword.html'><input type='button' value='Back'></a>");
+                return;
+            }
+            
+            
+            
+            
             String currentPassword = getCurrentPassword(username);
             if (currentPassword == null || !currentPassword.equals(oldpassword)) {
                 out.println("<p>The old password does not match the current one.</p>");
@@ -104,6 +114,12 @@ public class ChangePassword extends HttpServlet {
             getStatement = conn.prepareStatement("Select password"
                     + " From Account"
                     + " Where username = ?");
+            
+            getStatement = conn.prepareStatement("Select username"
+                    + " From Account"
+                    + " Where username = ?");
+            
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -121,6 +137,18 @@ public class ChangePassword extends HttpServlet {
     }
     
     private String getCurrentPassword(String username) throws SQLException {
+        
+        getStatement.setString(1, username);
+        ResultSet rs = getStatement.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getString(1);
+        }
+        
+        return null;
+    }
+    
+    private String getCurrentUsername(String username) throws SQLException {
         
         getStatement.setString(1, username);
         ResultSet rs = getStatement.executeQuery();
