@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Simple Registration without Confirmation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+       Please register to your instructor's student address book
+       
+       <form method ="post" action="/DBExample/SimpleRegistration">
+           <p>Last Name <font color="#FF0000">*</font>
+               <input type="text" name="lastName">&nbsp;
+              First Name<font color="#FF0000">*</font>
+             <input type="text" name="firstName">&nbsp;
+              MI<input type="text" name="mi" value="">
+             
+            <p>Telephone
+                <input type="text" name="telephone" value="">&nbsp;
+                Email
+                <input type="text" name="email" value="">&nbsp;
+            </p>
+            <p>Street<input type="text" name="street" value="">&nbsp;
+            </p>
+            <p>Postcode<input type="text" name="postcode" value="">&nbsp;
+            </p>
+            <p>City<input type="text" name="city" size="23">&nbsp;
+                State
+                <select size ="1" name ="state">
+                    <option value="Selangor">Selangor</option>
+                    <option value="Perak">Perak</option>
+                    <option value="Kedah">Kedah</option>
+                    <option value="Melaka">Melaka</option>
+                    <option value="Johor">Johor</option>
+                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                </select>&nbsp;
+                <input type="submit" value="Submit"> 
+                <input type="reset" value="Reset"> 
+            </p>
+        </form>
+        <p><font color = "#FF0000">* required fields </font></p>
+             
+    </body>
+</html>
