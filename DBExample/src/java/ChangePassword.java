@@ -48,32 +48,12 @@ public class ChangePassword extends HttpServlet {
         String oldpassword = request.getParameter("oldpassword");
         String newpassword = request.getParameter("newpassword");
         String cpassword = request.getParameter("cpassword");
-        String name = "";
-        String password = "";
-        String usernameusr = "";
+        
         
         
             
         
         try{
-            /*//declare driver and connection string
-            String driver = "org.apache.derby.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/ChangePasswordDB;create=true;user=app;password=app";
-            
-            //load the driver
-            Class.forName(driver);
-            
-            //connect to the sampple db
-            Connection conn = DriverManager.getConnection(connectionString);
-            
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("select * from Account where password = 'oldpassword'");
-             while (rs.next()) {
-                usernameusr = rs.getString(1);
-                password = rs.getString(2);
-                name = rs.getString(3);
-            }
-             */
             //error message occur if username and old password is not valid
             if(username.length() == 0 || oldpassword.length() == 0){
                 out.println("Username and Old Password are <font color=\"#FF0000\">required</font>");
@@ -81,7 +61,7 @@ public class ChangePassword extends HttpServlet {
                 return; //End of method
             }
             
-            //error message occur if not match
+            //error message occur if not match newpassword and confirm password
             if(!newpassword.equals(cpassword)){
                 out.println("New password and confirm password are <font color=\"#FF0000\">not match</font>");
                 out.println("<a href=ChangePassword.html>Back</a>");//back to previous page
@@ -92,22 +72,23 @@ public class ChangePassword extends HttpServlet {
             
             
             
-            
+            //error message occur if old password does not match with the password in table
             String currentPassword = getCurrentPassword(username);
             if (currentPassword == null || !currentPassword.equals(oldpassword)) {
                 out.println("<p>The old password does not match the current one.</p>");
                 out.println("<a href='ChangePassword.html'><input type='button' value='Back'></a>");
                 return;
             }
-        
+            
+            //update new password        
             storePassword(username, cpassword); 
             out.println("Hello, " + username + ", your password has been updated..");
             
-        } catch (Exception ex){
-            out.println("Error: " + ex.getMessage());
-        } finally {
-            out.close(); //Close stream
-        }
+            } catch (Exception ex){
+                out.println("Error: " + ex.getMessage());
+            } finally {
+                out.close(); //Close stream
+            }
     
     }
 
@@ -138,9 +119,6 @@ public class ChangePassword extends HttpServlet {
             
             
             
-          
-            
-            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -156,6 +134,7 @@ public class ChangePassword extends HttpServlet {
         updateStatement.executeUpdate();
     }
     
+    //method to get password in table
     private String getCurrentPassword(String username) throws SQLException {
         
         getStatement.setString(1, username);
